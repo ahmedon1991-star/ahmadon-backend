@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "google.geminicodeassist",
+        "thanhtunguet.qwen-code-vscode",
+        "wowbox.code-debuger",
+        "ms-vscode.debug-value-editor",
+        "kingleo.qwen",
+        "ritwickdey.liveserver"
+    ]
+}
