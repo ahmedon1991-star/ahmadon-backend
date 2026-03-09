@@ -1,90 +1,283 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <title>أحمدون ستور</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أحمدون بريميوم | Ahmadon Luxury Store</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',    /* أزرق نون */
+                        accent: '#facc15',     /* أصفر تيمو */
+                        darkCard: '#1e293b'
+                    },
+                    fontFamily: { 'sans': ['Almarai', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; background-color: #f9fafb; color: #1a1a1a; }
-        
-        /* Header */
-        header { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 20px; text-align: center; }
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 0 5%; }
-        .nav-btn { background: #fbbf24; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
-        /* Grid */
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        h2 { text-align: center; color: #1e3a8a; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        
-        /* Card */
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); }
-        .card-img { height: 200px; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 3em; color: #9ca3af; }
-        .card-body { padding: 20px; }
-        .price { font-size: 1.5em; color: #dc2626; font-weight: bold; }
-        .btn-add { width: 100%; background: #2563eb; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-        
-        /* Loading */
-        .loading { text-align: center; padding: 50px; color: #666; font-size: 1.2em; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .product-card:hover .quick-add { transform: translateY(0); opacity: 1; }
+        .cart-open { transform: translateX(0) !important; }
+        @keyframes bounce-in { 0% { transform: scale(0.5); } 100% { transform: scale(1); } }
+        .animate-pop { animation: bounce-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     </style>
 </head>
-<body>
-    <header>
-        <h1>🛍️ متجر أحمدون الإلكتروني</h1>
-        <p>أفضل المنتجات بأفضل الأسعار</p>
-    </header>
 
-    <div class="container">
-        <h2>منتجاتنا المميزة 🔥</h2>
-        <div id="loading" class="loading">جاري تحميل المنتجات...</div>
-        <div id="products" class="grid"></div>
+<body class="bg-[#f8fafc] text-slate-900 dark:bg-[#0f172a] dark:text-white transition-colors duration-300">
+
+    <div class="bg-accent text-slate-900 text-center py-2 text-xs font-bold tracking-widest uppercase">
+        ⚡ شحن مجاني للطلبات فوق $500 | خصم 10% باستخدام كود: AHMADON ⚡
     </div>
 
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full md:w-[400px] bg-white dark:bg-slate-900 shadow-2xl z-50 transform translate-x-full transition-transform duration-500 ease-in-out border-l dark:border-slate-800">
+        <div class="p-6 flex justify-between items-center border-b dark:border-slate-800">
+            <h2 class="text-2xl font-black">سلة التسوق <span id="cartCountHeader" class="text-sm font-normal text-gray-400">(0)</span></h2>
+            <button onclick="toggleCart()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div id="cartItemsList" class="p-6 space-y-4 overflow-y-auto h-[calc(100vh-250px)] no-scrollbar">
+            </div>
+
+        <div class="absolute bottom-0 w-full p-6 bg-gray-50 dark:bg-slate-800/50 border-t dark:border-slate-800">
+            <div class="flex justify-between text-xl font-black mb-6">
+                <span>الإجمالي:</span>
+                <span id="cartTotalPrice" class="text-primary">$0.00</span>
+            </div>
+            <button class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30">
+                إتمام الطلب الآن 💳
+            </button>
+        </div>
+    </div>
+
+    <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-6">
+            <a href="#" class="text-3xl font-black italic tracking-tighter text-primary">
+                AHMADON<span class="text-accent">.</span>
+            </a>
+
+            <div class="hidden md:flex flex-1 relative group">
+                <input type="text" id="searchInput" oninput="searchProducts()" placeholder="ما الذي تبحث عنه اليوم؟" 
+                    class="w-full bg-gray-100 dark:bg-slate-800 border-none rounded-2xl px-12 py-3 focus:ring-2 focus:ring-primary transition-all">
+                <i class="fas fa-search absolute right-4 top-4 text-gray-400 group-focus-within:text-primary"></i>
+            </div>
+
+            <div class="flex items-center gap-2 md:gap-5">
+                <button onclick="toggleDarkMode()" class="w-11 h-11 rounded-2xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center hover:scale-110 transition">
+                    <i class="fas fa-moon dark:hidden"></i><i class="fas fa-sun hidden dark:inline text-accent"></i>
+                </button>
+                
+                <button onclick="toggleCart()" class="relative w-11 h-11 rounded-2xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center hover:scale-110 transition">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cartBadge" class="absolute -top-2 -left-2 bg-red-500 text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 font-bold hidden">0</span>
+                </button>
+
+                <button class="hidden md:block px-6 py-3 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-2xl font-bold hover:shadow-xl transition">
+                    تسجيل الدخول
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 mt-8">
+        <div class="relative rounded-[2rem] overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 h-[300px] md:h-[450px] flex items-center p-8 md:p-16">
+            <div class="relative z-10 max-w-xl">
+                <h1 class="text-4xl md:text-7xl font-black text-white mb-6 leading-tight">عروض <br> الجنون بدأت! ⚡</h1>
+                <p class="text-blue-100 text-lg md:text-xl mb-8 opacity-90 font-light">استمتع بخصومات تصل إلى 70% على جميع الإلكترونيات لفترة محدودة.</p>
+                <button class="bg-accent text-slate-900 px-10 py-4 rounded-2xl font-black text-lg hover:scale-105 transition shadow-2xl">تسوق الآن</button>
+            </div>
+            <div class="absolute left-0 bottom-0 w-full md:w-1/2 opacity-20 md:opacity-100">
+                 <img src="https://m.media-amazon.com/images/I/71vFKBpKakL._AC_SL1500_.jpg" class="w-full h-full object-contain -rotate-12 translate-y-10">
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-16">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-3xl font-black">وصلنا حديثاً ✨</h2>
+            <div class="flex gap-2">
+                <button class="p-3 bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 hover:text-primary"><i class="fas fa-sliders-h"></i></button>
+            </div>
+        </div>
+
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+            <div class="bg-gray-200 dark:bg-slate-800 h-80 rounded-3xl animate-pulse"></div>
+            <div class="bg-gray-200 dark:bg-slate-800 h-80 rounded-3xl animate-pulse"></div>
+            <div class="bg-gray-200 dark:bg-slate-800 h-80 rounded-3xl animate-pulse"></div>
+            <div class="bg-gray-200 dark:bg-slate-800 h-80 rounded-3xl animate-pulse"></div>
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-slate-900 border-t dark:border-slate-800 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-16">
+            <div>
+                <h3 class="text-2xl font-black mb-6">AHMADON.</h3>
+                <p class="text-gray-500 leading-relaxed">أكبر متجر إلكتروني في الشرق الأوسط يوفر لك أفضل المنتجات العالمية بضمان محلي وأسعار تنافسية.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">الدعم والمساعدة</h4>
+                <ul class="space-y-4 text-gray-500">
+                    <li class="hover:text-primary cursor-pointer transition">تتبع طلبي</li>
+                    <li class="hover:text-primary cursor-pointer transition">سياسة الاستبدال</li>
+                    <li class="hover:text-primary cursor-pointer transition">الأسئلة الشائعة</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">اشترك في النشرة</h4>
+                <div class="flex gap-2 bg-gray-100 dark:bg-slate-800 p-2 rounded-2xl">
+                    <input type="text" placeholder="بريدك الإلكتروني" class="bg-transparent border-none flex-1 px-4 outline-none">
+                    <button class="bg-primary text-white px-6 py-2 rounded-xl font-bold">انضم</button>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-20 pt-8 border-t dark:border-slate-800 text-center text-gray-400">
+            © 2026 أحمدون ستور - جميع الحقوق محفوظة. صُنع بفخر.
+        </div>
+    </footer>
+
     <script>
-        // رابط السيرفر الخاص بك (سيتم تحديثه عند النشر)
-        const API_URL = window.location.origin; 
+        const API_URL = '/products';
+        let allProducts = [];
+        let cart = JSON.parse(localStorage.getItem('ahmadon_cart')) || [];
 
+        // === 1. جلب المنتجات من السيرفر ===
         async function loadProducts() {
+            const grid = document.getElementById('productsGrid');
             try {
-                const response = await fetch(`${API_URL}/products`);
-                const products = await response.json();
-                
-                document.getElementById('loading').style.display = 'none';
-                const container = document.getElementById('products');
-                
-                if (products.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">لا توجد منتجات حالياً. يرجى إضافتها من لوحة التحكم.</p>';
-                    return;
-                }
-
-                container.innerHTML = products.map(product => `
-                    <div class="card">
-                        <div class="card-img"><i class="fas fa-cube"></i></div>
-                        <div class="card-body">
-                            <h3>${product.name || 'منتج مميز'}</h3>
-                            <p style="color:#666; font-size:0.9em;">${product.description || ''}</p>
-                            <div class="price">$${product.price || 0}</div>
-                            <button class="btn-add" onclick="addToCart(${product.id})">
-                                <i class="fas fa-cart-plus"></i> إضافة للسلة
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-
-            } catch (error) {
-                console.error('Error loading products:', error);
-                document.getElementById('loading').innerText = 'حدث خطأ أثناء تحميل المنتجات. تأكد من تشغيل السيرفر.';
+                const res = await fetch(API_URL);
+                allProducts = await res.json();
+                renderProducts(allProducts);
+                updateCartUI(); // تحديث السلة عند التحميل
+            } catch (err) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 bg-red-50 dark:bg-red-900/10 rounded-[2rem]">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                    <p class="text-xl font-bold">عذراً! لا يمكن الاتصال بالسيرفر حالياً.</p>
+                    <button onclick="loadProducts()" class="mt-4 text-blue-500 underline">إعادة المحاولة</button>
+                </div>`;
             }
         }
 
-        function addToCart(productId) {
-            alert(`تمت إضافة المنتج رقم ${productId} للسلة بنجاح! ✅`);
+        // === 2. عرض المنتجات في الشبكة ===
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            if(products.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center py-10 text-gray-500">لا توجد نتائج مطابقة لبحثك...</p>`;
+                return;
+            }
+            grid.innerHTML = products.map(p => `
+                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-[2rem] p-4 border dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                    <button class="absolute top-6 left-6 z-10 w-10 h-10 rounded-full bg-white/80 dark:bg-slate-700/80 backdrop-blur-md flex items-center justify-center text-gray-400 hover:text-red-500 transition">
+                        <i class="far fa-heart"></i>
+                    </button>
+
+                    <div class="relative overflow-hidden rounded-2xl h-48 md:h-60 bg-gray-50 dark:bg-slate-700/50 mb-6 flex items-center justify-center">
+                        <img src="https://via.placeholder.com/400?text=${p.name}" class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-700">
+                        <div class="quick-add absolute inset-x-0 bottom-4 px-4 translate-y-20 opacity-0 transition-all duration-300">
+                             <button onclick="addToCart('${p.id}', '${p.name}', ${p.price})" class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-500/40">إضافة للسلة <i class="fas fa-plus ml-1 text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 px-2">
+                        <p class="text-[10px] font-bold text-primary uppercase tracking-widest">${p.category || 'Luxury'}</p>
+                        <h3 class="text-lg font-black truncate">${p.name}</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-black text-slate-900 dark:text-white">$${Number(p.price).toLocaleString()}</span>
+                            <div class="text-accent text-[10px]">
+                                <i class="fas fa-star"></i> 4.9
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        window.onload = loadProducts;
+        // === 3. وظيفة البحث ===
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        // === 4. وظائف السلة (إضافة/حذف/تحديث) ===
+        function toggleCart() {
+            document.getElementById('cartDrawer').classList.toggle('translate-x-full');
+        }
+
+        function addToCart(id, name, price) {
+            const existing = cart.find(i => i.id === id);
+            if(existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id, name, price, qty: 1 });
+            }
+            saveAndRefreshCart();
+            
+            // تأثير بصري للزر عند الإضافة
+            const badge = document.getElementById('cartBadge');
+            badge.classList.add('animate-pop');
+            setTimeout(() => badge.classList.remove('animate-pop'), 300);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            saveAndRefreshCart();
+        }
+
+        function saveAndRefreshCart() {
+            localStorage.setItem('ahmadon_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cartItemsList');
+            const badge = document.getElementById('cartBadge');
+            const totalDisplay = document.getElementById('cartTotalPrice');
+            const headerCount = document.getElementById('cartCountHeader');
+
+            badge.innerText = cart.reduce((acc, i) => acc + i.qty, 0);
+            badge.classList.toggle('hidden', cart.length === 0);
+            headerCount.innerText = `(${cart.length})`;
+
+            if(cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-20 opacity-20"><i class="fas fa-shopping-basket text-7xl"></i><p class="mt-4 font-bold">السلة فارغة</p></div>`;
+            } else {
+                list.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-3xl border dark:border-slate-700">
+                        <div class="w-16 h-16 bg-gray-100 dark:bg-slate-700 rounded-xl flex-shrink-0 flex items-center justify-center">
+                            <i class="fas fa-box text-gray-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm truncate">${item.name}</h4>
+                            <p class="text-primary font-black">$${item.price} <span class="text-gray-400 text-xs">x ${item.qty}</span></p>
+                        </div>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-400 hover:text-red-600 p-2"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                `).join('');
+            }
+
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            totalDisplay.innerText = `$${total.toLocaleString()}`;
+        }
+
+        // === 5. الوضع الليلي ===
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // تشغيل التطبيق
+        loadProducts();
     </script>
 </body>
 </html>

@@ -5,6 +5,7 @@
         "wowbox.code-debuger",
         "ms-vscode.debug-value-editor",
         "kingleo.qwen",
-        "ritwickdey.liveserver"
+        "ritwickdey.liveserver",
+        "openai.chatgpt"
     ]
 }
